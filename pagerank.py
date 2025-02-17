@@ -3,6 +3,8 @@ import random
 import re
 import sys
 
+import copy
+
 DAMPING = 0.85
 SAMPLES = 10000
 #SAMPLES = 2
@@ -15,8 +17,8 @@ def main():
 
     ## My lines starts
 
-    #print('corpus:')
-    #print(corpus)
+    print('corpus:')
+    print(corpus)
     # page = list(corpus.keys())[0]
     # print('page', page)
     
@@ -24,11 +26,11 @@ def main():
 
     ## My lines stops
 
-    ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
+    # ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
     
-    print(f"PageRank Results from Sampling (n = {SAMPLES})")
-    for page in sorted(ranks):
-        print(f"  {page}: {ranks[page]:.4f}")
+    # print(f"PageRank Results from Sampling (n = {SAMPLES})")
+    # for page in sorted(ranks):
+    #     print(f"  {page}: {ranks[page]:.4f}")
     ranks = iterate_pagerank(corpus, DAMPING)
     print(f"PageRank Results from Iteration")
     for page in sorted(ranks):
@@ -142,8 +144,65 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # Check if there is some page with no links
+    for p in corpus:
+        if len(corpus[p]) == 0:
+            #print(p, 'no links!')
+            #print(corpus[p])
+            corpus[p] = list(corpus.keys())
+            #print(corpus[p])
 
+    N = len(corpus)
+    pr = dict.fromkeys(list(corpus.keys()), 1/N)
+    print('pr', pr)
+    k = 0
+    print('****** start loop')
+    while True:
+        pr_new = dict.fromkeys(list(corpus.keys()), 0)
+        #print('pr_new', pr_new)
+        # find pages i that links to p
+        in_links_to_p = dict()
+        for p, links in corpus.items():
+            #print(f'p: {p}, links: {links}')
+            
+            for l in links:
+                #print('l', l)
+                if l not in in_links_to_p:
+                    in_links_to_p[l] = {p}
+                else:
+                    in_links_to_p[l].add(p)
+        #print('in_links_to_p', in_links_to_p)
+        for p in pr_new:
+            pr_new[p] += (1 - damping_factor) / N
+            for i in in_links_to_p[p]:
+                #print(f'{i} are linked to {p}')
+                num_links_i = len(corpus[i])
+                #print('num_links_i', num_links_i)
+                pr_new[p] += (damping_factor * pr[i]) / num_links_i
+
+            #print('- - - - - ')
+
+        #print('pr_new', pr_new)
+        if stop(pr, pr_new):
+            break
+        pr = copy.deepcopy(pr_new)
+        k += 1
+        if k == 100:
+            break
+    print('****** after loop')
+    print('Iterations k:', k)
+    #print('pr', pr)
+    print('pr_new', pr_new)
+    print('pr_new sum', sum(pr_new.values()))
+    return pr_new
+
+def stop(pr, pr_new):
+    # Returns True if PageRank value changes no more than 0.001
+    # between the pr and pr_new rank values
+    for key in pr:
+        if abs(pr[key] - pr_new[key]) > 0.001:
+            return False
+    return True
 
 if __name__ == "__main__":
     main()
