@@ -75,7 +75,7 @@ def transition_model(corpus, page, damping_factor):
     """
     links = list(corpus[page])
     #print(f'Page: {page}, links: {links}')
-    
+
     probs = dict.fromkeys(corpus.keys(), 0)
     #print(probs)
     # Is there any links from page
@@ -94,12 +94,12 @@ def transition_model(corpus, page, damping_factor):
         p2 = (1 - DAMPING) / len(corpus.keys())
         for key in probs:
             probs[key] += p2
-        
+
     #print('probs', probs)
     #print('probs sum', sum(probs.values()))
     return probs
 
-    
+
 
 def sample_pagerank(corpus, damping_factor, n):
     """
@@ -111,7 +111,7 @@ def sample_pagerank(corpus, damping_factor, n):
     PageRank values should sum to 1.
     """
     counts = dict.fromkeys(corpus.keys(), 0)
-    
+
     page = random.choices(list(corpus.keys()))[0]
     #print('first page:', page)
     counts[page] += 1
@@ -127,7 +127,7 @@ def sample_pagerank(corpus, damping_factor, n):
         i += 1
 
     #print(counts)
-    
+
     for key in counts:
         counts[key] /= n
     #print(counts)
