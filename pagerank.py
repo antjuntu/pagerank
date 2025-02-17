@@ -5,6 +5,7 @@ import sys
 
 DAMPING = 0.85
 SAMPLES = 10000
+#SAMPLES = 2
 
 
 def main():
@@ -14,12 +15,12 @@ def main():
 
     ## My lines starts
 
-    print('corpus:')
-    print(corpus)
-    page = list(corpus.keys())[0]
-    print('page', page)
+    #print('corpus:')
+    #print(corpus)
+    # page = list(corpus.keys())[0]
+    # print('page', page)
     
-    prob = transition_model(corpus, page, DAMPING)
+    # prob = transition_model(corpus, page, DAMPING)
 
     ## My lines stops
 
@@ -107,7 +108,29 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    counts = dict.fromkeys(corpus.keys(), 0)
+    
+    page = random.choices(list(corpus.keys()))[0]
+    #print('first page:', page)
+    counts[page] += 1
+
+    i = 1
+    while i < n:
+        probs = transition_model(corpus, page, damping_factor)
+        #print('probs', probs)
+        page = random.choices(list(probs.keys()), list(probs.values()))[0]
+        #print('next page', page)
+        counts[page] += 1
+
+        i += 1
+
+    #print(counts)
+    
+    for key in counts:
+        counts[key] /= n
+    #print(counts)
+    #print('counts sum', sum(counts.values()))
+    return counts
 
 
 def iterate_pagerank(corpus, damping_factor):
