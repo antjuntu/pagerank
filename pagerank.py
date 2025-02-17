@@ -11,7 +11,20 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python pagerank.py corpus")
     corpus = crawl(sys.argv[1])
+
+    ## My lines starts
+
+    print('corpus:')
+    print(corpus)
+    page = list(corpus.keys())[0]
+    print('page', page)
+    
+    prob = transition_model(corpus, page, DAMPING)
+
+    ## My lines stops
+
     ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
+    
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
         print(f"  {page}: {ranks[page]:.4f}")
@@ -57,8 +70,33 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    raise NotImplementedError
+    links = list(corpus[page])
+    #print(f'Page: {page}, links: {links}')
+    
+    probs = dict.fromkeys(corpus.keys(), 0)
+    #print(probs)
+    # Is there any links from page
+    if len(links) == 0:
+        p = 1 / len(corpus.keys())
+        #print('Page with no outgoing links')
+        #print('p', p)
+        for key in probs.keys():
+            probs[key] = p
+    else:
+        # With probability DAMPING, randomly choose on of the links from page
+        p1 = DAMPING / len(links)
+        for link in links:
+            probs[link] += p1
+        # With probability 1 - DAMPING, randomly choose among all pages
+        p2 = (1 - DAMPING) / len(corpus.keys())
+        for key in probs:
+            probs[key] += p2
+        
+    #print('probs', probs)
+    #print('probs sum', sum(probs.values()))
+    return probs
 
+    
 
 def sample_pagerank(corpus, damping_factor, n):
     """
